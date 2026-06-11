@@ -1,0 +1,57 @@
+{
+  "name": "VesselProfile",
+  "type": "object",
+  "properties": {
+    "vessel_name": {
+      "type": "string",
+      "description": "Name of the vessel"
+    },
+    "imo_number": {
+      "type": "string",
+      "description": "IMO number"
+    },
+    "flag_state": {
+      "type": "string",
+      "description": "Flag state of the vessel"
+    },
+    "gross_tonnage": {
+      "type": "number",
+      "description": "Gross tonnage"
+    },
+    "vessel_type": {
+      "type": "string",
+      "enum": [
+        "oil_tanker",
+        "non_tanker"
+      ],
+      "description": "Type of vessel for ORB Part selection"
+    },
+    "oily_water_separator_capacity": {
+      "type": "number",
+      "description": "OWS capacity in m\u00b3/h"
+    },
+    "oil_content_monitor_type": {
+      "type": "string",
+      "description": "Type of oil content monitor"
+    },
+    "incinerator_capacity": {
+      "type": "number",
+      "description": "Incinerator capacity in m\u00b3/h"
+    },
+    "slop_tank_capacity": {
+      "type": "number",
+      "description": "Slop tank capacity in m\u00b3"
+    },
+    "sludge_tank_capacity": {
+      "type": "number",
+      "description": "Sludge tank capacity in m\u00b3"
+    },
+    "bilge_tank_capacity": {
+      "type": "number",
+      "description": "Bilge holding tank capacity in m\u00b3"
+    }
+  },
+  "required": [
+    "vessel_name"
+  ]
+}

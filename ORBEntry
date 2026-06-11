@@ -1,0 +1,111 @@
+{
+  "name": "ORBEntry",
+  "type": "object",
+  "properties": {
+    "entry_number": {
+      "type": "number",
+      "description": "Sequential entry number in the ORB"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the operation (UTC)"
+    },
+    "time_utc": {
+      "type": "string",
+      "description": "Time of the operation in UTC (HH:MM)"
+    },
+    "operation_code": {
+      "type": "string",
+      "description": "MARPOL operation code letter (A through I)"
+    },
+    "item_number": {
+      "type": "string",
+      "description": "Item number within the operation code"
+    },
+    "operation_description": {
+      "type": "string",
+      "description": "Description of the operation performed"
+    },
+    "record_of_operation": {
+      "type": "string",
+      "description": "Detailed record text per INTERTANKO format"
+    },
+    "tank_id": {
+      "type": "string",
+      "description": "Tank identification if applicable"
+    },
+    "quantity_m3": {
+      "type": "number",
+      "description": "Quantity in cubic meters if applicable"
+    },
+    "position_lat": {
+      "type": "string",
+      "description": "Latitude position at time of operation"
+    },
+    "position_lon": {
+      "type": "string",
+      "description": "Longitude position at time of operation"
+    },
+    "ship_speed_knots": {
+      "type": "number",
+      "description": "Ship speed in knots at time of operation"
+    },
+    "signed_by": {
+      "type": "string",
+      "description": "Name of officer signing the entry"
+    },
+    "rank": {
+      "type": "string",
+      "description": "Rank of officer signing"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "corrected",
+        "void"
+      ],
+      "default": "active",
+      "description": "Status of the entry"
+    },
+    "correction_note": {
+      "type": "string",
+      "description": "Correction note if entry was amended"
+    },
+    "corrected_by": {
+      "type": "string",
+      "description": "Name of officer who made the correction"
+    },
+    "correction_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the correction"
+    },
+    "corrected_entry_id": {
+      "type": "string",
+      "description": "ID of the new correcting entry if this entry was voided"
+    },
+    "is_correction_of": {
+      "type": "string",
+      "description": "ID of the original entry this corrects"
+    },
+    "master_countersigned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the Master has countersigned this entry"
+    },
+    "vessel_name": {
+      "type": "string",
+      "description": "Name of the vessel"
+    }
+  },
+  "required": [
+    "date",
+    "operation_code",
+    "item_number",
+    "record_of_operation",
+    "signed_by",
+    "rank"
+  ]
+}

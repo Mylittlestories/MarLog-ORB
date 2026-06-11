@@ -1,0 +1,49 @@
+{
+  "name": "EntryTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Template name (e.g. 'Routine Bilge Discharge')"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short description of when to use this template"
+    },
+    "operation_code": {
+      "type": "string",
+      "description": "MARPOL operation code letter (A through I)"
+    },
+    "item_number": {
+      "type": "string",
+      "description": "Item number within the operation code"
+    },
+    "record_of_operation": {
+      "type": "string",
+      "description": "Pre-filled record text with placeholders"
+    },
+    "tank_id": {
+      "type": "string",
+      "description": "Default tank identification"
+    },
+    "signed_by": {
+      "type": "string",
+      "description": "Default signing officer name"
+    },
+    "rank": {
+      "type": "string",
+      "description": "Default rank of signing officer"
+    },
+    "use_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times this template has been used"
+    }
+  },
+  "required": [
+    "name",
+    "operation_code",
+    "item_number",
+    "record_of_operation"
+  ]
+}
