@@ -1,5 +1,5 @@
 {
-  "name": "base44-app",
+  "name": "marlog-orb",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,11 +9,19 @@
     "lint": "eslint . --quiet",
     "lint:fix": "eslint . --fix",
     "typecheck": "tsc -p ./jsconfig.json",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "electron:dev": "electron .",
+    "electron:build": "electron-builder --win --mac --linux",
+    "electron:build:win": "electron-builder --win",
+    "build:all": "npm run build && npm run electron:build"
   },
   "dependencies": {
     "@base44/sdk": "^0.8.32",
     "@base44/vite-plugin": "^1.0.21",
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^7.6.7",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "^8.4.1",
     "@hello-pangea/dnd": "^17.0.0",
     "@hookform/resolvers": "^4.1.2",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -46,6 +54,7 @@
     "@stripe/react-stripe-js": "^3.0.0",
     "@stripe/stripe-js": "^5.2.0",
     "@tanstack/react-query": "^5.84.1",
+    "@tauri-apps/cli": "^2.11.3",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -86,6 +95,8 @@
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "baseline-browser-mapping": "^2.8.32",
+    "electron": "^41.7.1",
+    "electron-builder": "^26.15.3",
     "eslint": "^9.19.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.0.0",
@@ -96,5 +107,6 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.2",
     "vite": "^6.1.0"
-  }
+  },
+  "main": "electron/main.js"
 }

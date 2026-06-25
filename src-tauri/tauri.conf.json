@@ -1,0 +1,53 @@
+{
+  "$schema": "https://v2.tauri.app/schemas/config.schema.json",
+  "productName": "MarLog ORB",
+  "version": "1.0.0",
+  "identifier": "com.marlog.orb",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:5173",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis", "msi"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    },
+    "shortDescription": "MARPOL Compliant Oil Record Book",
+    "longDescription": "A precise, MARPOL-compliant Oil Record Book designed for marine engineers to manage daily operations and ensure regulatory compliance.",
+    "category": "Business",
+    "copyright": "Copyright (c) 2026 MarLog"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "MarLog ORB — Oil Record Book",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 900,
+        "minHeight": 600,
+        "center": true,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "label": "main"
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  }
+}
