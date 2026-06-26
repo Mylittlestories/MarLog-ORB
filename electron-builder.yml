@@ -1,3 +1,4 @@
+main: electron/main.cjs
 appId: com.marlog.orb
 productName: MarLog ORB
 copyright: Copyright © 2026 MarLog

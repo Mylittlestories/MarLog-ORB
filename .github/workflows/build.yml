@@ -112,21 +112,24 @@ jobs:
         run: npm ci
       - name: Build web
         run: npm run build
-      - name: Add Capacitor iOS
+      - name: Add Capacitor iOS (skip auto-sync)
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
           rm -rf ios
-          npx cap add ios
-      - name: Fix iOS deployment target
+          npx cap add ios --skip-sync
+      - name: Patch Podfile for iOS 13
         run: |
-          if [ -f ios/App/Podfile ]; then
-            sed -i '' 's/platform :ios,.*/platform :ios, "13.0"/' ios/App/Podfile
-            echo "Patched ios/App/Podfile"
-          fi
-          if [ -f ios/Podfile ]; then
-            sed -i '' 's/platform :ios,.*/platform :ios, "13.0"/' ios/Podfile
-            echo "Patched ios/Podfile"
-          fi
+          echo "Searching for Podfile..."
+          find ios -name "Podfile" -exec echo "Found: {}" \; 2>/dev/null
+          for podfile in $(find ios -name "Podfile" 2>/dev/null); do
+            echo "Patching $podfile"
+            sed -i '' 's/platform :ios,.*/platform :ios, "13.0"/' "$podfile"
+            grep "platform :ios" "$podfile" || echo "Pattern not found in $podfile"
+          done
+      - name: Run pod install
+        run: |
+          cd ios/App
+          pod install --repo-update
       - name: Build iOS
         run: |
           cd ios/App
