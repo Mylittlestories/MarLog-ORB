@@ -1,0 +1,29 @@
+export const MARPOL_OPERATIONS = {
+  A: { name: 'CRUDE OIL WASHING (COW) OPERATIONS', items: { '1': 'Arrival at loading port — tanks to be washed', '2': 'COW started (time, tank numbers, pressure)', '3': 'COW finished (time)', '4': 'Discharge of wash water after COW', '5': 'Departure from loading port' }},
+  B: { name: 'BALLLASTING OPERATIONS', items: { '1': 'Ballasting: tanks filled (time, position, tanks ballasted)', '2': 'Ballasting: completed (time, total ballast)', '3': 'Automatic liquid level alarms and visual checks confirmed operational' }},
+  C: { name: 'DISCHARGE OF BALLAST', items: { '1': 'Discharge of ballast water: tanks discharged (time, position, tanks)', '2': 'Discharge to reception facility: time, quantity (m³)', '3': 'Discharge overboard: time, quantity (m³), oil content monitor reading (ppm)', '4': 'Discharge completed (time)' }},
+  D: { name: 'DISCHARGE OF OIL RESIDUES (SLOP)', items: { '1': 'Slop tank(s) and contents recorded', '2': 'Discharge to reception facility: time, quantity (m³)', '3': 'Discharge overboard: time, quantity (m³), oil content monitor reading (ppm)', '4': 'Oil content monitor calibrated and verified at start of discharge', '5': 'Discharge completed, total discharged (m³)' }},
+  E: { name: 'COLLECTION, TRANSFER AND DISPOSAL OF OIL RESIDUES (SLUDGE)', items: { '1': 'Sludge transferred to reception facility (time, quantity m³)', '2': 'Sludge transferred to other tank(s) (time, tanks)', '3': 'Sludge incinerated (time, tank, quantity, duration)', '4': 'Other disposal method' }},
+  F: { name: 'NON-AUTOMATIC DISCHARGE OF OIL RESIDUES OR TRANSFER', items: { '1': 'Transfer of oil residues to slop tank(s) (time, tanks, quantity)', '2': 'Transfer from slop tank(s) to another tank(s) (time, tanks, quantity)', '3': 'Discharge to reception facility (time, quantity, tanks emptied)', '4': 'Transfer between tanks for disposal' }},
+  G: { name: 'BILGE WATER OPERATIONS', items: { '1': 'Bilge water accumulated in (tank/space) (time)', '2': 'Bilge water transferred to bilge holding tank (time, tank)', '3': 'Bilge water passed through 15 ppm separator/discharge to reception facility (time, quantity)', '4': 'Bilge holding tank contents discharged via OWS (time, quantity, ppm reading)', '5': 'Bilge water transferred to another vessel (time, quantity, vessel name)' }},
+  H: { name: 'CORRECTIONS AND AMENDMENTS', items: { '1': 'Entry corrected by (name, rank, date)', '2': 'Original entry voided — reason for correction noted', '3': 'Correcting entry cross-referenced with original entry number', '4': 'Master countersignature obtained (date, name)' }},
+  I: { name: 'ADDITIONAL OPERATIONS / EQUIPMENT STATUS', items: { '1': 'Oil content monitor tested and calibrated (time, reading)', '2': 'Automatic stopping device tested (time)', '3': 'Slop tank inspection completed (time, findings)', '4': 'Bilge alarm tested (time)', '5': 'Incinerator operation (time, duration, tank emptied)', '6': "Ship's Speed and Heading recorded (time, speed, heading)", '7': 'Position recorded for critical operations' }}
+}
+
+export const OPERATION_CODES = Object.keys(MARPOL_OPERATIONS)
+
+export const VESSEL_TYPES = [
+  { value: 'oil_tanker', label: 'Oil Tanker (Part I ORB)' },
+  { value: 'non_tanker', label: 'Non-Oil Tanker / Other Ship (Part II ORB)' }
+]
+
+export const RANKS = ['Master','Chief Engineer','Second Engineer','Third Engineer','Fourth Engineer','Junior Engineer','Chief Officer','Second Officer','Third Officer']
+
+export const DEFAULT_ENTRY_TEMPLATES = [
+  { id: 'template_1', name: 'Routine Bilge Discharge via OWS', description: 'Standard bilge water discharge through 15 ppm separator when at sea', operation_code: 'G', item_number: '4', record_of_operation: 'Bilge water from bilge holding tank discharged via OWS overboard. Oil content monitor reading: [READING] ppm. Alarm status: [ALARM]. Total quantity: [QUANTITY] m³.', tank_id: 'Bilge Holding Tank', signed_by: '', rank: 'Chief Engineer', use_count: 0 },
+  { id: 'template_2', name: 'Ballast Water Taking On', description: 'Record ballast water taken on for voyage stability', operation_code: 'B', item_number: '1', record_of_operation: 'Ballast water taken on for voyage stability. Tanks ballasted: [TANKS]. Total quantity received: [QUANTITY] m³.', tank_id: '', signed_by: '', rank: 'Chief Engineer', use_count: 0 },
+  { id: 'template_3', name: 'Sludge Transfer to Reception Facility', description: 'Transfer of sludge residues to port reception facility', operation_code: 'E', item_number: '1', record_of_operation: 'Sludge from sludge tank transferred to shore reception facility. Quantity transferred: [QUANTITY] m³. Tank(s) emptied: [TANKS].', tank_id: '', signed_by: '', rank: 'Chief Engineer', use_count: 0 },
+  { id: 'template_4', name: 'Bilge Water to Reception Facility', description: 'Discharge bilge water to port reception facility', operation_code: 'G', item_number: '3', record_of_operation: 'Bilge water transferred to port reception facility. Quantity: [QUANTITY] m³. Tank(s) emptied: [TANKS].', tank_id: '', signed_by: '', rank: 'Chief Engineer', use_count: 0 },
+  { id: 'template_5', name: 'Oil Content Monitor Calibration', description: 'Record OCM calibration and verification', operation_code: 'I', item_number: '1', record_of_operation: 'Oil content monitor calibrated and verified operational. Test reading: [READING] ppm (expected: <15 ppm). 15 ppm alarm tested and confirmed functional.', tank_id: '', signed_by: '', rank: 'Chief Engineer', use_count: 0 },
+  { id: 'template_6', name: 'Slop Tank Transfer', description: 'Transfer oil residues between slop tanks', operation_code: 'F', item_number: '2', record_of_operation: 'Oil residues transferred from [SOURCE TANK] to [DESTINATION TANK]. Quantity transferred: [QUANTITY] m³.', tank_id: '', signed_by: '', rank: 'Chief Engineer', use_count: 0 }
+]
