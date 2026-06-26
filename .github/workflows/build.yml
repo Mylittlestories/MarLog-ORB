@@ -46,12 +46,13 @@ jobs:
         run: npm ci
       - name: Build web
         run: npm run build
-      - name: Sync Capacitor Android
+      - name: Add Capacitor Android (fresh install)
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap sync android
+          rm -rf android
+          npx cap add android
       - name: Build APK
-        run: cd android && ./gradlew assembleDebug --no-daemon
+        run: chmod +x android/gradlew && cd android && ./gradlew assembleDebug --no-daemon
       - name: Create release dir
         run: mkdir -p release && cp android/app/build/outputs/apk/debug/app-debug.apk release/MarLog_ORB_Android.apk
       - name: Upload APK
@@ -105,10 +106,11 @@ jobs:
         run: npm ci
       - name: Build web
         run: npm run build
-      - name: Sync Capacitor iOS
+      - name: Add Capacitor iOS (fresh install)
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
-          npx cap sync ios
+          rm -rf ios/App
+          npx cap add ios
       - name: Build iOS
         run: |
           cd ios/App
