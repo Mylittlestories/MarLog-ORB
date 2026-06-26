@@ -1,0 +1,164 @@
+name: Build All Platforms
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-web:
+    name: Build Web App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build web app
+        run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: web-dist
+          path: dist/
+          retention-days: 1
+
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v2
+      - name: Install dependencies
+        run: npm ci
+      - name: Build web
+        run: npm run build
+      - name: Add Capacitor Android
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap add android
+          npx cap sync android
+      - name: Build APK
+        run: cd android && ./gradlew assembleDebug --no-daemon
+      - name: Create release dir
+        run: mkdir -p release && cp android/app/build/outputs/apk/debug/app-debug.apk release/MarLog_ORB_Android.apk
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: release/MarLog_ORB_Android.apk
+          retention-days: 30
+
+  build-windows:
+    name: Build Windows EXE
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build web
+        run: npm run build
+      - name: Build Electron
+        run: |
+          npm install electron electron-builder --save-dev
+          npx electron-builder --win --dir --publish never
+      - name: Create portable zip
+        run: |
+          mkdir -p release
+          Compress-Archive -Path release/win-unpacked/* -DestinationPath release/MarLog_ORB_Windows_Portable.zip
+          Copy-Item release/win-unpacked/*.exe release/ 2>$null
+      - name: Upload Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: |
+            release/MarLog_ORB_Windows_Portable.zip
+            release/win-unpacked/
+          retention-days: 30
+
+  build-ios:
+    name: Build iOS App
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build web
+        run: npm run build
+      - name: Add Capacitor iOS
+        run: |
+          npm install @capacitor/core @capacitor/cli @capacitor/ios
+          npx cap add ios
+          npx cap sync ios
+      - name: Build iOS
+        run: |
+          cd ios/App
+          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO archive
+      - name: Create IPA
+        run: |
+          mkdir -p release
+          xcodebuild -exportArchive \
+            -archivePath ios/App/build/App.xcarchive \
+            -exportOptionsPlist ios/App/ExportOptions.plist \
+            -exportPath release \
+            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: release/*.ipa
+          retention-days: 30
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-android, build-windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download APK
+        uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: artifacts/
+      - name: Download Windows
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+          path: artifacts/
+      - name: List artifacts
+        run: ls -la artifacts/ && find artifacts/ -type f
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: MarLog ORB ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            artifacts/MarLog_ORB_Android.apk
+            artifacts/MarLog_ORB_Windows_Portable.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
