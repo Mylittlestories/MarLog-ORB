@@ -51,6 +51,22 @@ jobs:
           npm install @capacitor/core @capacitor/cli @capacitor/android
           rm -rf android
           npx cap add android
+      - name: Fix Kotlin duplicate class issue
+        run: |
+          # Add resolution strategy to force consistent Kotlin stdlib versions
+          # This prevents duplicate class errors from kotlin-stdlib-jdk7/jdk8 vs kotlin-stdlib
+          if ! grep -q "configurations.all" android/app/build.gradle; then
+            cat >> android/app/build.gradle << 'GRADLEFIX'
+
+configurations.all {
+    resolutionStrategy {
+        force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.22'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.22'
+        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22'
+    }
+}
+GRADLEFIX
+          fi
       - name: Build APK
         run: chmod +x android/gradlew && cd android && ./gradlew assembleDebug --no-daemon
       - name: Create release dir
