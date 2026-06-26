@@ -114,6 +114,8 @@ jobs:
           npx cap add ios
       - name: Fix iOS deployment target for Capacitor 8
         run: |
+          echo "Looking for Podfile..."
+          find ios -name Podfile 2>/dev/null
           if [ -f ios/App/Podfile ]; then
             sed -i '' 's/platform :ios,.*/platform :ios, "13.0"/' ios/App/Podfile
           fi
