@@ -46,10 +46,9 @@ jobs:
         run: npm ci
       - name: Build web
         run: npm run build
-      - name: Add Capacitor Android
+      - name: Sync Capacitor Android
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap add android
           npx cap sync android
       - name: Build APK
         run: cd android && ./gradlew assembleDebug --no-daemon
@@ -81,16 +80,16 @@ jobs:
           npx electron-builder --win --dir --publish never
       - name: Create portable zip
         run: |
-          mkdir -p release
-          Compress-Archive -Path release/win-unpacked/* -DestinationPath release/MarLog_ORB_Windows_Portable.zip
-          Copy-Item release/win-unpacked/*.exe release/ 2>$null
+          New-Item -ItemType Directory -Force -Path electron-release | Out-Null
+          Compress-Archive -Path release/win-unpacked/* -DestinationPath electron-release/MarLog_ORB_Windows_Portable.zip
+          Copy-Item release/win-unpacked/*.exe electron-release/ -ErrorAction SilentlyContinue
       - name: Upload Windows
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: |
-            release/MarLog_ORB_Windows_Portable.zip
-            release/win-unpacked/
+            electron-release/MarLog_ORB_Windows_Portable.zip
+            electron-release/*.exe
           retention-days: 30
 
   build-ios:
@@ -106,10 +105,9 @@ jobs:
         run: npm ci
       - name: Build web
         run: npm run build
-      - name: Add Capacitor iOS
+      - name: Sync Capacitor iOS
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
-          npx cap add ios
           npx cap sync ios
       - name: Build iOS
         run: |
