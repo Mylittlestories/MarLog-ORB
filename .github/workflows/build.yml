@@ -52,9 +52,14 @@ jobs:
           rm -rf android
           npx cap add android
       - name: Fix Kotlin duplicate class issue
-        run: chmod +x ci-android-fix.sh && bash ci-android-fix.sh
+        run: |
+          chmod +x ci-android-fix.sh
+          bash ci-android-fix.sh
       - name: Build APK
-        run: chmod +x android/gradlew && cd android && ./gradlew assembleDebug --no-daemon
+        run: |
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleDebug --no-daemon
       - name: Create release dir
         run: mkdir -p release && cp android/app/build/outputs/apk/debug/app-debug.apk release/MarLog_ORB_Android.apk
       - name: Upload APK
@@ -84,7 +89,7 @@ jobs:
       - name: Create portable zip
         shell: powershell
         run: |
-          New-Item -ItemType Directory -Force -Path electron-release
+          New-Item -ItemType Directory -Force -Path electron-release | Out-Null
           Compress-Archive -Path release/win-unpacked/* -DestinationPath electron-release/MarLog_ORB_Windows_Portable.zip
           Get-ChildItem release/win-unpacked/*.exe | Copy-Item -Destination electron-release/
       - name: Upload Windows
@@ -112,12 +117,15 @@ jobs:
           npm install @capacitor/core @capacitor/cli @capacitor/ios
           rm -rf ios
           npx cap add ios
-      - name: Fix iOS deployment target for Capacitor 8
+      - name: Fix iOS deployment target
         run: |
-          echo "Looking for Podfile..."
-          find ios -name Podfile 2>/dev/null
           if [ -f ios/App/Podfile ]; then
             sed -i '' 's/platform :ios,.*/platform :ios, "13.0"/' ios/App/Podfile
+            echo "Patched ios/App/Podfile"
+          fi
+          if [ -f ios/Podfile ]; then
+            sed -i '' 's/platform :ios,.*/platform :ios, "13.0"/' ios/Podfile
+            echo "Patched ios/Podfile"
           fi
       - name: Build iOS
         run: |
@@ -163,7 +171,6 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-          
           files: |
             artifacts/MarLog_ORB_Android.apk
             artifacts/MarLog_ORB_Windows_Portable.zip
