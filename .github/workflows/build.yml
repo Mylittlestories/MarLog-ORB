@@ -46,20 +46,13 @@ jobs:
         run: npm ci
       - name: Build web
         run: npm run build
-      - name: Add Capacitor Android (fresh install)
+      - name: Add Capacitor Android
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/android
           rm -rf android
           npx cap add android
       - name: Fix Kotlin duplicate class issue
-        run: |
-          echo 'configurations.all {
-    resolutionStrategy {
-        force "org.jetbrains.kotlin:kotlin-stdlib:1.9.22"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.22"
-        force "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.22"
-    }
-}' >> android/app/build.gradle
+        run: chmod +x ci-android-fix.sh && bash ci-android-fix.sh
       - name: Build APK
         run: chmod +x android/gradlew && cd android && ./gradlew assembleDebug --no-daemon
       - name: Create release dir
@@ -89,17 +82,16 @@ jobs:
           npm install electron electron-builder --save-dev
           npx electron-builder --win --dir --publish never
       - name: Create portable zip
+        shell: powershell
         run: |
-          New-Item -ItemType Directory -Force -Path electron-release | Out-Null
+          New-Item -ItemType Directory -Force -Path electron-release
           Compress-Archive -Path release/win-unpacked/* -DestinationPath electron-release/MarLog_ORB_Windows_Portable.zip
-          Copy-Item release/win-unpacked/*.exe electron-release/ -ErrorAction SilentlyContinue
+          Get-ChildItem release/win-unpacked/*.exe | Copy-Item -Destination electron-release/
       - name: Upload Windows
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: |
-            electron-release/MarLog_ORB_Windows_Portable.zip
-            electron-release/*.exe
+          path: electron-release/
           retention-days: 30
 
   build-ios:
@@ -115,7 +107,7 @@ jobs:
         run: npm ci
       - name: Build web
         run: npm run build
-      - name: Add Capacitor iOS (fresh install)
+      - name: Add Capacitor iOS
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
           rm -rf ios
@@ -127,11 +119,7 @@ jobs:
       - name: Create IPA
         run: |
           mkdir -p release
-          xcodebuild -exportArchive \
-            -archivePath ios/App/build/App.xcarchive \
-            -exportOptionsPlist ios/App/ExportOptions.plist \
-            -exportPath release \
-            CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
+          xcodebuild -exportArchive -archivePath ios/App/build/App.xcarchive -exportOptionsPlist ios/App/ExportOptions.plist -exportPath release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
