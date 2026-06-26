@@ -109,7 +109,7 @@ jobs:
       - name: Add Capacitor iOS (fresh install)
         run: |
           npm install @capacitor/core @capacitor/cli @capacitor/ios
-          rm -rf ios/App
+          rm -rf ios
           npx cap add ios
       - name: Build iOS
         run: |
