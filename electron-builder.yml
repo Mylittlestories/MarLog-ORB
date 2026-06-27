@@ -1,51 +1,36 @@
-main: electron/main.cjs
 appId: com.marlog.orb
 productName: MarLog ORB
 copyright: Copyright © 2026 MarLog
-
 directories:
   output: release
   buildResources: build
-
 files:
   - dist/**/*
   - electron/**/*
-  - "!node_modules/**/*"
-
+  - "!**/node_modules/**/*"
+  - package.json
 asar: true
-compression: maximum
-
+electronVersion: 33.2.1
 win:
   target:
     - target: nsis
       arch:
         - x64
-  artifactName: ${productName}_${version}_Windows_x64.${ext}
-
+  artifactName: "${productName}_${version}_Windows_x64.${ext}"
 nsis:
   oneClick: false
-  perMachine: false
+  perMachine: true
   allowToChangeInstallationDirectory: true
   deleteAppDataOnUninstall: false
   createDesktopShortcut: always
   createStartMenuShortcut: true
-  shortcutName: MarLog ORB
-
-mac:
-  target:
-    - target: dmg
-      arch:
-        - x64
-        - arm64
-  category: public.app-category.business
-
+  shortcutName: "MarLog ORB"
 linux:
   target:
     - target: AppImage
       arch:
         - x64
-  category: Office
-
+  category: Office;Utility;
 extraResources:
   - from: public/
     to: public/
