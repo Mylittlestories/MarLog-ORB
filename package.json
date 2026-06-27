@@ -1,7 +1,7 @@
 {
   "name": "marlog-orb",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.1.1",
   "type": "module",
   "description": "MarLog ORB - MARPOL Annex I compliant Oil Record Book for shipboard engineers",
   "author": "MarLog",
@@ -60,6 +60,7 @@
     "globals": "^15.14.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.3",
     "vite": "^6.1.0"
   },
   "main": "electron/main.cjs",

@@ -48,7 +48,7 @@ export function Sidebar({ currentPage, onNavigate, vessel }) {
       <div className="p-4 border-t border-slate-700">
         <div className="text-xs text-slate-500 text-center">
           Compliant with MARPOL 73/78<br />Annex I Requirements<br />
-          <span className="mt-2 text-slate-600">v2.1.0</span>
+          <span className="mt-2 text-slate-600">v2.1.1</span>
         </div>
       </div>
     </aside>

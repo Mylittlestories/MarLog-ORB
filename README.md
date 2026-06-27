@@ -9,7 +9,7 @@ Release binaries are published on the GitHub Releases page whenever a `v*` tag i
 | Platform | Artifact | Notes |
 |---|---|---|
 | Android | `MarLog_ORB_Android.apk` | Direct APK install for Android devices |
-| Windows | `MarLog ORB_2.1.0_Windows_x64.exe` | Electron NSIS installer |
+| Windows | `MarLog ORB_2.1.1_Windows_x64.exe` | Electron NSIS installer |
 | Windows portable | `MarLog_ORB_Windows_Portable.zip` | Unzip and run the executable |
 
 ## Features
@@ -48,13 +48,13 @@ npm run build:electron:win
 ## Release process
 
 1. Commit the desired changes.
-2. Tag the release, for example `v2.1.0`.
+2. Tag the release, for example `v2.1.1`.
 3. Push the tag.
 4. GitHub Actions builds the web app, APK, Windows installer, portable zip, and publishes the release assets.
 
 ```bash
-git tag v2.1.0
-git push origin v2.1.0
+git tag v2.1.1
+git push origin v2.1.1
 ```
 
 ## Compliance note
