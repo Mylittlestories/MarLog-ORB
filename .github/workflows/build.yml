@@ -1,4 +1,4 @@
-name: Build All Platforms
+name: Build and Release
 
 on:
   push:
@@ -6,64 +6,59 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build-web:
-    name: Build Web App
+    name: Verify Web App
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.12.0'
           cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build web app
-        run: npm run build
+      - run: npm ci
+      - run: npm run verify
       - uses: actions/upload-artifact@v4
         with:
           name: web-dist
           path: dist/
-          retention-days: 1
+          retention-days: 7
 
   build-android:
     name: Build Android APK
     runs-on: ubuntu-latest
+    needs: build-web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.12.0'
           cache: 'npm'
-      - name: Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '21'
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v2
-      - name: Install dependencies
-        run: npm ci
-      - name: Build web
-        run: npm run build
-      - name: Add Capacitor Android
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npm run build
+      - name: Generate fresh Capacitor Android project
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android
           rm -rf android
           npx cap add android
-      - name: Fix Kotlin duplicate class issue
-        run: |
-          chmod +x ci-android-fix.sh
-          bash ci-android-fix.sh
+          npx cap sync android
       - name: Build APK
         run: |
           chmod +x android/gradlew
           cd android
           ./gradlew assembleDebug --no-daemon
-      - name: Create release dir
-        run: mkdir -p release && cp android/app/build/outputs/apk/debug/app-debug.apk release/MarLog_ORB_Android.apk
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Stage APK
+        run: |
+          mkdir -p release
+          cp android/app/build/outputs/apk/debug/app-debug.apk release/MarLog_ORB_Android.apk
+      - uses: actions/upload-artifact@v4
         with:
           name: android-apk
           path: release/MarLog_ORB_Android.apk
@@ -72,77 +67,29 @@ jobs:
   build-windows:
     name: Build Windows EXE
     runs-on: windows-latest
+    needs: build-web
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22.12.0'
           cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build web
-        run: npm run build
-      - name: Build Electron
-        run: |
-          npm install electron electron-builder --save-dev
-          npx electron-builder --win --dir --publish never
-      - name: Create portable zip
+      - run: npm ci
+      - run: npm run build
+      - name: Build Electron Windows installer
+        run: npx electron-builder --win --publish never
+      - name: Stage Windows artifacts
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path electron-release | Out-Null
-          Compress-Archive -Path release/win-unpacked/* -DestinationPath electron-release/MarLog_ORB_Windows_Portable.zip
-          Get-ChildItem release/win-unpacked/*.exe | Copy-Item -Destination electron-release/
-      - name: Upload Windows
-        uses: actions/upload-artifact@v4
+          Copy-Item release\*.exe electron-release\ -ErrorAction Stop
+          if (Test-Path release\win-unpacked) {
+            Compress-Archive -Path release\win-unpacked\* -DestinationPath electron-release\MarLog_ORB_Windows_Portable.zip -Force
+          }
+      - uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: electron-release/
-          retention-days: 30
-
-  build-ios:
-    name: Build iOS App
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
-      - name: Build web
-        run: npm run build
-      - name: Add Capacitor iOS (skip auto-sync)
-        run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/ios
-          rm -rf ios
-          npx cap add ios --skip-sync
-      - name: Patch Podfile for iOS 13
-        run: |
-          echo "Searching for Podfile..."
-          find ios -name "Podfile" -exec echo "Found: {}" \; 2>/dev/null
-          for podfile in $(find ios -name "Podfile" 2>/dev/null); do
-            echo "Patching $podfile"
-            sed -i '' 's/platform :ios,.*/platform :ios, "13.0"/' "$podfile"
-            grep "platform :ios" "$podfile" || echo "Pattern not found in $podfile"
-          done
-      - name: Run pod install
-        run: |
-          cd ios/App
-          pod install --repo-update
-      - name: Build iOS
-        run: |
-          cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO archive
-      - name: Create IPA
-        run: |
-          mkdir -p release
-          xcodebuild -exportArchive -archivePath ios/App/build/App.xcarchive -exportOptionsPlist ios/App/ExportOptions.plist -exportPath release CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO
-      - name: Upload IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: ios-ipa
-          path: release/*.ipa
           retention-days: 30
 
   create-release:
@@ -150,23 +97,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-android, build-windows]
     if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
-      - name: Download APK
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: android-apk
           path: artifacts/
-      - name: Download Windows
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: windows-build
           path: artifacts/
-      - name: List artifacts
-        run: ls -la artifacts/ && find artifacts/ -type f
-      - name: Create Release
+      - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.ref_name }}
@@ -176,6 +117,5 @@ jobs:
           generate_release_notes: true
           files: |
             artifacts/MarLog_ORB_Android.apk
+            artifacts/*.exe
             artifacts/MarLog_ORB_Windows_Portable.zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

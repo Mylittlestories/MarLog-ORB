@@ -10,10 +10,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs.j
 import { ArrowLeft, Save, BookOpen, Clock, MapPin, FileText, Check } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { MARPOL_OPERATIONS, OPERATION_CODES, RANKS } from '@/data/marpolOperations.js'
+import { getUTCDateInputValue, getUTCTimeInputValue, isNonNegativeNumber } from '@/lib/utils.js'
 
 const emptyEntry = {
-  date: new Date().toISOString().split('T')[0],
-  time_utc: new Date().toTimeString().substring(0, 5),
+  date: getUTCDateInputValue(),
+  time_utc: getUTCTimeInputValue(),
   operation_code: '', item_number: '', operation_description: '',
   record_of_operation: '', tank_id: '', quantity_m3: '',
   position_lat: '', position_lon: '', ship_speed_knots: '',
@@ -69,6 +70,16 @@ export function EntryForm({ entry, onClose, onNavigate }) {
     if (!formData.operation_code) newErrors.operation_code = 'Operation code is required'
     if (!formData.item_number) newErrors.item_number = 'Item number is required'
     if (!formData.record_of_operation.trim()) newErrors.record_of_operation = 'Record of operation is required'
+    if (!isNonNegativeNumber(formData.quantity_m3)) newErrors.quantity_m3 = 'Quantity must be zero or greater'
+    if (!isNonNegativeNumber(formData.ship_speed_knots)) newErrors.ship_speed_knots = 'Speed must be zero or greater'
+
+    const positionCriticalOperation = ['C', 'D'].includes(formData.operation_code) || (formData.operation_code === 'G' && ['3', '4'].includes(formData.item_number))
+    if (positionCriticalOperation && (!formData.position_lat.trim() || !formData.position_lon.trim())) {
+      newErrors.position = 'Latitude and longitude are required for discharge operations'
+    }
+    if (['C', 'D', 'E', 'F', 'G'].includes(formData.operation_code) && formData.quantity_m3 === '') {
+      newErrors.quantity_m3 = 'Quantity is required for transfer/discharge operations'
+    }
     if (!formData.signed_by.trim()) newErrors.signed_by = 'Signed by is required'
     if (!formData.rank) newErrors.rank = 'Rank is required'
     setErrors(newErrors)
@@ -159,7 +170,7 @@ export function EntryForm({ entry, onClose, onNavigate }) {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label htmlFor="tank_id">Tank / Space ID</Label><Input id="tank_id" value={formData.tank_id} onChange={(e) => handleChange('tank_id', e.target.value)} placeholder="e.g. No. 1 Slop Tank" /></div>
-                  <div className="space-y-2"><Label htmlFor="quantity_m3">Quantity (m³)</Label><Input id="quantity_m3" type="number" step="0.001" value={formData.quantity_m3} onChange={(e) => handleChange('quantity_m3', e.target.value)} placeholder="e.g. 15.5" /></div>
+                  <div className="space-y-2"><Label htmlFor="quantity_m3">Quantity (m³)</Label><Input id="quantity_m3" type="number" min="0" step="0.001" value={formData.quantity_m3} onChange={(e) => handleChange('quantity_m3', e.target.value)} placeholder="e.g. 15.5" className={errors.quantity_m3 ? 'border-red-500' : ''} />{errors.quantity_m3 && <p className="text-xs text-red-500">{errors.quantity_m3}</p>}</div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="record_of_operation">Record of Operation *</Label>
@@ -237,9 +248,9 @@ export function EntryForm({ entry, onClose, onNavigate }) {
                   <div className="space-y-2"><Label htmlFor="position_lat">Latitude</Label><Input id="position_lat" value={formData.position_lat} onChange={(e) => handleChange('position_lat', e.target.value)} placeholder="e.g. 35°27.5' N" /></div>
                   <div className="space-y-2"><Label htmlFor="position_lon">Longitude</Label><Input id="position_lon" value={formData.position_lon} onChange={(e) => handleChange('position_lon', e.target.value)} placeholder="e.g. 140°58.6' E" /></div>
                 </div>
-                <div className="space-y-2"><Label htmlFor="ship_speed_knots">Ship Speed (knots)</Label><Input id="ship_speed_knots" type="number" step="0.1" value={formData.ship_speed_knots} onChange={(e) => handleChange('ship_speed_knots', e.target.value)} placeholder="e.g. 12.5" /></div>
+                <div className="space-y-2"><Label htmlFor="ship_speed_knots">Ship Speed (knots)</Label><Input id="ship_speed_knots" type="number" min="0" step="0.1" value={formData.ship_speed_knots} onChange={(e) => handleChange('ship_speed_knots', e.target.value)} placeholder="e.g. 12.5" className={errors.ship_speed_knots ? 'border-red-500' : ''} />{errors.ship_speed_knots && <p className="text-xs text-red-500">{errors.ship_speed_knots}</p>}</div>
               </CardContent>
-              <CardFooter><p className="text-xs text-slate-500">Position and speed are required for certain MARPOL operations (e.g., discharge of ballast).</p></CardFooter>
+              <CardFooter className="block"><p className="text-xs text-slate-500">Position and speed are required for certain MARPOL operations (e.g., discharge of ballast).</p>{errors.position && <p className="text-xs text-red-500 mt-2">{errors.position}</p>}</CardFooter>
             </Card>
           </TabsContent>
         </form>

@@ -1,103 +1,66 @@
 # MarLog ORB — MARPOL Compliant Oil Record Book
 
-**A precise, MARPOL 73/78 Annex I compliant Oil Record Book for marine engineers.**
+A polished offline Oil Record Book for shipboard engineers, focused on MARPOL 73/78 Annex I records, vessel particulars, entry templates, audit-friendly corrections, PDF export, and JSON backup/restore.
 
-Manage daily operations, record all 9 MARPOL operation codes (A–I), handle entry amendments, export PDFs, and stay compliant — all from a single application.
+## Download
 
----
+Release binaries are published on the GitHub Releases page whenever a `v*` tag is pushed.
 
-## 📥 Download the App
-
-| Platform | File | Install |
-|----------|------|---------|
-| **Android** | `MarLog_ORB_Android.apk` | Install APK directly on Android device |
-| **Windows** | `MarLog_ORB_Windows_Portable.zip` | Extract and run `.exe` — no installation needed |
-| **iOS** | `MarLog_ORB_iOS.ipa` | Sideload via Finder, Xcode, or 3uTools |
-
-> 📦 **Download binaries from the [Releases page](https://github.com/Mylittlestories/MarLog-ORB/releases)**
-
----
+| Platform | Artifact | Notes |
+|---|---|---|
+| Android | `MarLog_ORB_Android.apk` | Direct APK install for Android devices |
+| Windows | `MarLog ORB_2.1.0_Windows_x64.exe` | Electron NSIS installer |
+| Windows portable | `MarLog_ORB_Windows_Portable.zip` | Unzip and run the executable |
 
 ## Features
 
-- ✅ **All 9 MARPOL Operation Codes** — A (COW), B (Ballasting), C (Discharge ballast), D (Slop discharge), E (Sludge disposal), F (Transfers), G (Bilge water), H (Corrections), I (Equipment status)
-- ✅ **Vessel Profile Management** — IMO number, flag state, OWS specs
-- ✅ **Entry Templates** — 6 pre-built templates + custom creation
-- ✅ **MARPOL Corrections** — Audit-compliant correction workflow
-- ✅ **PDF Export** — Full formatted Oil Record Book document
-- ✅ **JSON Backup/Restore** — Export/import all data
-- ✅ **Offline-First** — Works completely offline, data stored locally
+- All MARPOL operation codes A–I with selectable item numbers.
+- Vessel profile: IMO, flag, tonnage, vessel type, OWS/OCM and tank capacities.
+- Entry templates for common engineering operations.
+- Offline-first local persistence.
+- PDF Oil Record Book export and JSON backup/restore.
+- Correction workflow preserving original entries for audit traceability.
+- Production desktop and Android build pipelines.
 
----
-
-## Tech Stack
-
-- **Frontend:** React 18, Vite 6, Tailwind CSS
-- **UI:** Radix UI primitives, shadcn/ui-style components
-- **Mobile:** Capacitor 8 (Android + iOS)
-- **Desktop:** Electron 41
-- **PDF:** jsPDF
-
----
-
-## Build from Source
+## Build from source
 
 ### Prerequisites
 
-| Platform | Requirements |
-|----------|-------------|
-| Android | Java 21, Node.js, Android SDK |
-| Windows | Node.js |
-| iOS | macOS, Xcode, Node.js |
+- Node.js 22.12+ and npm 10+
+- Java 21 and Android SDK for APK builds
+- Windows runner/host for Windows `.exe` builds
 
 ### Commands
 
 ```bash
-npm install
-npm run dev          # Development server
-npm run build        # Production web build
+npm ci
+npm run verify      # lint + production web build
+npm run dev         # local Vite server
+npm run build       # production web build
 
-# Build all platforms
-./BUILD_ALL_PLATFORMS.sh
+# Android APK, requires Java 21 + Android SDK
+npm run build:android
 
-# Android only
-npx cap add android && npx cap sync android
-cd android && ./gradlew assembleDebug
-
-# Windows only
-npm install electron electron-builder
-npx electron-builder --win
+# Windows installer, run on Windows
+npm run build:electron:win
 ```
 
----
+## Release process
 
-## MARPOL Compliance
+1. Commit the desired changes.
+2. Tag the release, for example `v2.1.0`.
+3. Push the tag.
+4. GitHub Actions builds the web app, APK, Windows installer, portable zip, and publishes the release assets.
 
-This app implements:
-- **MARPOL 73/78, Annex I, Regulation 17** (Oil Record Book)
-- **MEPC.106(49)** — Guidelines for the Oil Record Book
-- **INTERTANKO / OCIMF** recommended entry formats
-
----
-
-## 📁 Project Structure
-
-```
-marlog-orb/
-├── src/                    # React source code (29 files)
-├── pages/                  # App pages (Dashboard, Entries, etc.)
-├── components/             # UI components
-├── android/                # Capacitor Android project
-├── ios/                    # Capacitor iOS project
-├── electron/               # Electron desktop app
-├── src-tauri/              # Tauri (alternative desktop)
-├── .github/workflows/      # CI/CD for all platforms
-├── release/                # Built binaries (APK, EXE, IPA)
-└── BUILD_ALL_PLATFORMS.sh  # One-command cross-platform build
+```bash
+git tag v2.1.0
+git push origin v2.1.0
 ```
 
----
+## Compliance note
+
+MarLog ORB assists with MARPOL Annex I recordkeeping. Final responsibility for correctness, required signatures/countersignatures, flag-state requirements, company SMS procedures, and official acceptance remains with the vessel/operator.
 
 ## License
 
-MIT License — Free to use, modify, and distribute.
+MIT License.

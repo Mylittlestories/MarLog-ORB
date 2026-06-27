@@ -10,7 +10,7 @@ files:
   - "!**/node_modules/**/*"
   - package.json
 asar: true
-electronVersion: 33.2.1
+electronVersion: 41.7.1
 win:
   target:
     - target: nsis

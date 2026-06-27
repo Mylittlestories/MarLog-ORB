@@ -1,5 +1,6 @@
 import { DEFAULT_ENTRY_TEMPLATES } from './marpolOperations.js'
 const STORAGE_KEY = 'marlog_orb_data'
+const hasLocalStorage = () => typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
 const defaultVessel = {
   id: 'vessel_default',
   vessel_name: '',
@@ -20,6 +21,7 @@ function getDefaultData() {
 }
 export function loadData() {
   try {
+    if (!hasLocalStorage()) return getDefaultData()
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored) {
       const data = JSON.parse(stored)
@@ -33,7 +35,7 @@ export function loadData() {
   } catch (e) { console.error('Failed to load data:', e); return getDefaultData() }
 }
 export function saveData(data) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); return true }
+  try { if (!hasLocalStorage()) return false; localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); return true }
   catch (e) { console.error('Failed to save data:', e); return false }
 }
 export function exportToJSON(data) {
@@ -57,6 +59,6 @@ export function importFromJSON(file) {
   })
 }
 export function clearAllData() {
-  localStorage.removeItem(STORAGE_KEY)
+  if (hasLocalStorage()) localStorage.removeItem(STORAGE_KEY)
   return getDefaultData()
 }

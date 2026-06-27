@@ -49,7 +49,7 @@ export function VesselProfile() {
   const validate = () => {
     const newErrors = {}
     if (!formData.vessel_name.trim()) newErrors.vessel_name = 'Vessel name is required'
-    if (formData.imo_number && !validateIMO(formData.imo_number)) newErrors.imo_number = 'IMO number must be 7 digits'
+    if (formData.imo_number && !validateIMO(formData.imo_number)) newErrors.imo_number = 'IMO number must be 7 digits with a valid check digit'
     if (formData.gross_tonnage && isNaN(Number(formData.gross_tonnage))) newErrors.gross_tonnage = 'Must be a number'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
