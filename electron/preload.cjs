@@ -10,6 +10,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onMenuAction: (callback) => {
     ipcRenderer.on('menu-action', (_event, action) => callback(action));
   },
-  getAppVersion: () => '2.1.2',
+  getAppVersion: () => '2.1.3',
   platform: process.platform,
 });
