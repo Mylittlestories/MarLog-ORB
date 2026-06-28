@@ -1,7 +1,7 @@
 {
   "name": "marlog-orb",
   "private": true,
-  "version": "2.1.1",
+  "version": "2.1.2",
   "type": "module",
   "description": "MarLog ORB - MARPOL Annex I compliant Oil Record Book for shipboard engineers",
   "author": "MarLog",
@@ -34,7 +34,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-tabs": "^1.1.3",
     "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.1",
+    "clsx": "^2.1.2",
     "date-fns": "^3.6.0",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.475.0",
