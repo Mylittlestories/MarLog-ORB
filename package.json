@@ -1,9 +1,9 @@
 {
   "name": "marlog-orb",
   "private": true,
-  "version": "2.1.3",
+  "version": "3.0.0",
   "type": "module",
-  "description": "MarLog ORB - MARPOL Annex I compliant Oil Record Book for shipboard engineers",
+  "description": "MarLog ORB - MARPOL compliant Oil Record Book for shipboard engineers (multi-vessel, compliance-checked, offline-first)",
   "author": "MarLog",
   "license": "MIT",
   "homepage": "https://github.com/Mylittlestories/MarLog-ORB#readme",
@@ -22,7 +22,9 @@
     "lint:fix": "eslint . --fix",
     "build:android": "npm run build && rm -rf android && npx cap add android && npx cap sync android && cd android && ./gradlew assembleDebug",
     "cap:sync": "npm run build && npx cap sync",
-    "verify": "npm run lint && npm run build"
+    "verify": "npm run lint && npm run build && npm run test",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
@@ -34,7 +36,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-tabs": "^1.1.3",
     "class-variance-authority": "^0.7.1",
-    "clsx": "^2.1.3",
+    "clsx": "^2.1.1",
     "date-fns": "^3.6.0",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.475.0",
@@ -46,6 +48,8 @@
   "devDependencies": {
     "@capacitor/cli": "^8.4.1",
     "@eslint/js": "^9.19.0",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@vitejs/plugin-react": "^4.3.4",
@@ -57,11 +61,14 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.18",
     "eslint-plugin-unused-imports": "^4.4.1",
+    "fake-indexeddb": "^6.2.5",
     "globals": "^15.14.0",
+    "jsdom": "^24.1.3",
     "postcss": "^8.5.3",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3",
-    "vite": "^6.1.0"
+    "vite": "^6.1.0",
+    "vitest": "^2.1.9"
   },
   "main": "electron/main.cjs",
   "engines": {

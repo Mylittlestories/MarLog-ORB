@@ -18,6 +18,12 @@ npm-debug.log*
 *.local
 logs/
 
+# Dependencies & build output (should NOT be committed)
+node_modules/
+dist/
+coverage/
+*.tsbuildinfo
+
 # Capacitor/Android build cache (NOT the APK!)
 android/.gradle/
 android/app/build/

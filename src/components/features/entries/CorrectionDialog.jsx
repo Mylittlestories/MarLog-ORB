@@ -1,67 +1,87 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog.jsx'
+// components/features/entries/CorrectionDialog.jsx
+// Destructive-preserving correction: void the original and create a corrected copy
+// referencing it, with an optional Master countersignature.
+import { useEffect, useState } from 'react'
+import { useApp } from '@/store/AppContext.jsx'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog.jsx'
 import { Button } from '@/components/ui/button.jsx'
+import { Textarea } from '@/components/ui/textarea.jsx'
+import { TextField } from '@/components/ui/misc.jsx'
 import { Input } from '@/components/ui/input.jsx'
 import { Label } from '@/components/ui/label.jsx'
-import { Textarea } from '@/components/ui/textarea.jsx'
-import { AlertCircle } from 'lucide-react'
-import { useState } from 'react'
 
-export function CorrectionDialog({ entry, onClose, onCorrect }) {
-  const [correctionNote, setCorrectionNote] = useState('')
+export function CorrectionDialog({ entry, onClose }) {
+  const { dispatch } = useApp()
+  const [note, setNote] = useState('')
   const [correctedBy, setCorrectedBy] = useState('')
-  const [correctionDate, setCorrectionDate] = useState(new Date().toISOString().split('T')[0])
-  const [errors, setErrors] = useState({})
+  const [reason, setReason] = useState('')
+  const [countersignedBy, setCountersignedBy] = useState('')
+  const [countersignDate, setCountersignDate] = useState('')
+  const [error, setError] = useState('')
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    const newErrors = {}
-    if (!correctionNote.trim()) newErrors.correctionNote = 'Correction note is required'
-    if (!correctedBy.trim()) newErrors.correctedBy = 'Corrector name is required'
-    if (!correctionDate) newErrors.correctionDate = 'Date is required'
-    if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return }
-    onCorrect({ entryId: entry.id, correctionNote, correctedBy, correctionDate })
+  useEffect(() => {
+    setNote(entry.recordOfOperation || '')
+    setCorrectedBy(entry.signedBy || '')
+  }, [entry])
+
+  const submit = () => {
+    setError('')
+    if (!note.trim()) { setError('Provide the corrected record of operation.'); return }
+    if (!reason.trim()) { setError('Provide the reason for correction.'); return }
+    if (!correctedBy.trim()) { setError('Provide who is correcting the entry.'); return }
+    dispatch({
+      type: 'ADD_CORRECTION',
+      payload: {
+        entryId: entry.id,
+        reason: reason.trim(), correctedBy: correctedBy.trim(),
+        countersignedBy: countersignedBy.trim() || null, countersignDate: countersignDate || null,
+        corrected: {
+          date: entry.date, timeUtc: entry.timeUtc, annex: entry.annex,
+          operationCode: entry.operationCode, itemNumber: entry.itemNumber,
+          recordOfOperation: note.trim(), tankIds: entry.tankIds, tankId: entry.tankId,
+          quantityM3: entry.quantityM3, position: entry.position, speedKnots: entry.speedKnots,
+          ppmReading: entry.ppmReading, dischargeOverboard: entry.dischargeOverboard,
+          signedBy: correctedBy.trim(), rank: entry.rank || 'Chief Engineer',
+        },
+      },
+    })
+    onClose()
   }
 
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent>
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-amber-500" />
-            Correct Entry #{entry.entry_number}
-          </DialogTitle>
-          <DialogDescription>
-            Per MARPOL requirements, corrections must be clearly marked, never obliterated.
-            The original entry remains legible and the correction is signed.
-          </DialogDescription>
+          <DialogTitle>Correct entry #{entry.entryNumber}</DialogTitle>
+          <DialogDescription>The original entry will be retained as void and a corrected copy created with a cross-reference. This preserves the audit trail.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-            <p className="font-medium text-amber-900">Original Entry</p>
-            <p className="text-amber-700 mt-1 line-clamp-3">{entry.record_of_operation}</p>
+
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <TextField label="Corrected by *" value={correctedBy} onChange={(e) => setCorrectedBy(e.target.value)} placeholder="Officer name" />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-slate-600">Reason for correction *</Label>
+              <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="e.g. wrong quantity recorded" />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="correctionNote">Correction Note *</Label>
-            <Textarea id="correctionNote" value={correctionNote} onChange={(e) => setCorrectionNote(e.target.value)} placeholder="Describe what was corrected and why..." rows={3} className={errors.correctionNote ? 'border-red-500' : ''} />
-            {errors.correctionNote && <p className="text-xs text-red-500">{errors.correctionNote}</p>}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-slate-600">Corrected record of operation *</Label>
+            <Textarea rows={5} value={note} onChange={(e) => setNote(e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="correctedBy">Corrected By *</Label>
-              <Input id="correctedBy" value={correctedBy} onChange={(e) => setCorrectedBy(e.target.value)} placeholder="Officer name" className={errors.correctedBy ? 'border-red-500' : ''} />
-              {errors.correctedBy && <p className="text-xs text-red-500">{errors.correctedBy}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="correctionDate">Date *</Label>
-              <Input id="correctionDate" type="date" value={correctionDate} onChange={(e) => setCorrectionDate(e.target.value)} className={errors.correctionDate ? 'border-red-500' : ''} />
-              {errors.correctionDate && <p className="text-xs text-red-500">{errors.correctionDate}</p>}
+            <TextField label="Countersigned by (Master)" value={countersignedBy} onChange={(e) => setCountersignedBy(e.target.value)} placeholder="Optional" />
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-slate-600">Countersign date</Label>
+              <Input type="date" value={countersignDate} onChange={(e) => setCountersignDate(e.target.value)} />
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
-            <Button type="submit">Apply Correction</Button>
-          </DialogFooter>
-        </form>
+          {error && <p className="text-sm text-red-600">{error}</p>}
+        </div>
+
+        <DialogFooter className="gap-2">
+          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <Button onClick={submit}>Create corrected entry</Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )

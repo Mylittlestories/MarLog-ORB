@@ -1,66 +1,67 @@
-import { AppProvider, useApp } from '@/context/AppContext.jsx'
+import { useState, useEffect } from 'react'
+import { AppProvider, useApp } from '@/store/AppContext.jsx'
 import { Sidebar } from '@/components/features/Sidebar.jsx'
 import { Dashboard } from '@/pages/Dashboard.jsx'
-import { VesselProfile } from '@/pages/VesselProfile.jsx'
-import { EntryList } from '@/pages/EntryList.jsx'
+import { Entries } from '@/pages/Entries.jsx'
 import { EntryForm } from '@/pages/EntryForm.jsx'
 import { Templates } from '@/pages/Templates.jsx'
-import { Export } from '@/pages/Export.jsx'
-import { useState } from 'react'
+import { Fleet } from '@/pages/Fleet.jsx'
+import { Analytics } from '@/pages/Analytics.jsx'
+import { AuditLog } from '@/pages/AuditLog.jsx'
+import { Rules } from '@/pages/Rules.jsx'
+import { DataPage } from '@/pages/DataPage.jsx'
+import { AppLoading } from '@/components/features/AppLoading.jsx'
 
 function AppContent() {
-  const { state } = useApp()
-  const [currentPage, setCurrentPage] = useState('dashboard')
+  const { state, ready, migrationNote, setMigrationNote } = useApp()
+  const [page, setPage] = useState('dashboard')
   const [editingEntry, setEditingEntry] = useState(null)
+  const [newFromTemplate, setNewFromTemplate] = useState(null)
 
-  const handleEditEntry = (entry) => {
-    setEditingEntry(entry)
-    setCurrentPage('entry-form')
-  }
+  useEffect(() => {
+    if (!migrationNote) return
+    const id = setTimeout(() => setMigrationNote(null), 6000)
+    return () => clearTimeout(id)
+  }, [migrationNote])
 
-  const handleNewEntry = () => {
-    setEditingEntry(null)
-    setCurrentPage('entry-form')
-  }
+  if (!ready) return <AppLoading />
 
-  const handleCloseForm = () => {
-    setEditingEntry(null)
-    setCurrentPage('entries')
-  }
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard onNavigate={setCurrentPage} onNewEntry={handleNewEntry} />
-      case 'vessel':
-        return <VesselProfile />
-      case 'entries':
-        return <EntryList onEditEntry={handleEditEntry} onNewEntry={handleNewEntry} />
-      case 'entry-form':
-        return <EntryForm entry={editingEntry} onClose={handleCloseForm} onNavigate={setCurrentPage} />
-      case 'templates':
-        return <Templates />
-      case 'export':
-        return <Export />
-      default:
-        return <Dashboard onNavigate={setCurrentPage} onNewEntry={handleNewEntry} />
-    }
-  }
+  const openNewEntry = (templateId = null) => { setEditingEntry(null); setNewFromTemplate(templateId); setPage('entry-form') }
+  const openEditEntry = (entry) => { setEditingEntry(entry); setNewFromTemplate(null); setPage('entry-form') }
+  const closeForm = () => { setEditingEntry(null); setNewFromTemplate(null); setPage('entries') }
 
   return (
-    <div className="flex h-screen bg-slate-50">
-      <Sidebar currentPage={currentPage} onNavigate={setCurrentPage} vessel={state.vessel} />
-      <main className="flex-1 overflow-auto">
-        {renderPage()}
+    <div className="min-h-screen bg-slate-50">
+      <Sidebar currentPage={page} onNavigate={setPage} onNewEntry={openNewEntry} />
+      <main className="lg:pl-64">
+        <div className="p-4 md:p-6 lg:p-8 max-w-7xl mx-auto">
+          {migrationNote && (
+            <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
+              <span className="font-semibold">✓</span> {migrationNote}
+            </div>
+          )}
+          {renderPage()}
+        </div>
       </main>
     </div>
   )
+
+  function renderPage() {
+    switch (page) {
+      case 'dashboard': return <Dashboard onNavigate={setPage} onNewEntry={openNewEntry} />
+      case 'entries': return <Entries onNewEntry={openNewEntry} onEditEntry={openEditEntry} />
+      case 'entry-form': return <EntryForm entry={editingEntry} templateSeed={newFromTemplate} onClose={closeForm} onNavigate={setPage} />
+      case 'templates': return <Templates onUseTemplate={openNewEntry} onNavigate={setPage} />
+      case 'fleet': return <Fleet />
+      case 'analytics': return <Analytics />
+      case 'rules': return <Rules />
+      case 'audit': return <AuditLog />
+      case 'export': return <DataPage />
+      default: return <Dashboard onNavigate={setPage} onNewEntry={openNewEntry} />
+    }
+  }
 }
 
 export default function App() {
-  return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
-  )
+  return <AppProvider><AppContent /></AppProvider>
 }

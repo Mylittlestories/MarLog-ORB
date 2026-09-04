@@ -1,56 +1,109 @@
-import { LayoutDashboard, ClipboardList, Download, BookOpen, Ship } from 'lucide-react'
+// components/features/Sidebar.jsx — grouped, clean navigation + global vessel switcher.
+import { LayoutDashboard, BookOpen, ClipboardList, Ship, ShieldCheck, BarChart3, History, Database, Plus, ChevronDown } from 'lucide-react'
 import { cn } from '@/lib/utils.js'
+import { useApp } from '@/store/AppContext.jsx'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select.jsx'
+import { useState } from 'react'
+import { AddVesselDialog } from '@/components/features/AddVesselDialog.jsx'
 
-const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'vessel', label: 'Vessel Profile', icon: Ship },
-  { id: 'entries', label: 'Oil Record Entries', icon: BookOpen },
-  { id: 'templates', label: 'Templates', icon: ClipboardList },
-  { id: 'export', label: 'Export / Import', icon: Download },
+const GROUPS = [
+  { label: 'Overview', items: [{ id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard }] },
+  { label: 'Record Book', items: [
+    { id: 'entries', label: 'ORB Entries', icon: BookOpen },
+    { id: 'templates', label: 'Templates', icon: ClipboardList },
+  ]},
+  { label: 'Fleet', items: [{ id: 'fleet', label: 'Fleet Setup', icon: Ship }] },
+  { label: 'Compliance', items: [{ id: 'rules', label: 'Rules Reference', icon: ShieldCheck }] },
+  { label: 'Insights', items: [
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'audit', label: 'Audit Log', icon: History },
+  ]},
+  { label: 'Data', items: [{ id: 'export', label: 'Export & Backup', icon: Database }] },
 ]
 
-export function Sidebar({ currentPage, onNavigate, vessel }) {
+export function Sidebar({ currentPage, onNavigate, onNewEntry }) {
+  const { state, dispatch } = useApp()
+  const [addOpen, setAddOpen] = useState(false)
+  const [vesselsOpen, setVesselsOpen] = useState(false)
+  const vessels = state.vessels.filter((v) => !v.deletedAt)
+
   return (
-    <aside className="w-64 bg-slate-900 text-white flex flex-col no-print">
-      <div className="p-6 border-b border-slate-700">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-            <Ship className="w-6 h-6" />
-          </div>
-          <div>
-            <h1 className="font-bold text-lg leading-tight">MarLog ORB</h1>
-            <p className="text-xs text-slate-400">MARPOL Compliant</p>
+    <>
+      <aside className="fixed inset-y-0 left-0 w-64 z-30 bg-slate-900 text-white flex flex-col">
+        <div className="px-4 py-4 border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-sky-400 flex items-center justify-center">
+              <Ship className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="font-bold leading-tight">MarLog ORB</h1>
+              <p className="text-[11px] text-slate-400">MARPOL Record Book</p>
+            </div>
           </div>
         </div>
-      </div>
-      {vessel?.vessel_name && (
-        <div className="px-4 py-3 bg-slate-800 mx-3 mt-4 rounded-lg">
-          <p className="text-xs text-slate-400 mb-1">Active Vessel</p>
-          <p className="font-semibold text-sm">{vessel.vessel_name}</p>
-          {vessel.imo_number && <p className="text-xs text-slate-400">IMO: {vessel.imo_number}</p>}
-        </div>
-      )}
-      <nav className="flex-1 p-3 space-y-1">
-        {navItems.map((item) => {
-          const Icon = item.icon
-          const isActive = currentPage === item.id || (currentPage === 'entry-form' && item.id === 'entries')
-          return (
-            <button key={item.id} onClick={() => onNavigate(item.id)} className={cn(
-              'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left',
-              isActive ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-            )}>
-              <Icon className="w-5 h-5 flex-shrink-0" />
-              {item.label}
+
+        {/* Vessel switcher */}
+        <div className="px-3 pt-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 px-1 mb-1">Vessel</p>
+          <Select value={state.activeVesselId} onValueChange={(v) => dispatch({ type: 'SET_ACTIVE_VESSEL', payload: { uid: v } })}>
+            <SelectTrigger className="bg-slate-800 border-slate-700 text-white h-9"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {vessels.map((v) => <SelectItem key={v.id} value={v.id}>{v.name || '(unnamed)'}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <div className="flex gap-2 mt-2">
+            <button onClick={() => setAddOpen(true)} className="flex-1 flex items-center justify-center gap-1 rounded-md bg-slate-800 hover:bg-slate-700 px-2 py-1.5 text-xs text-slate-200">
+              <Plus className="w-3.5 h-3.5" /> Add vessel
             </button>
-          )
-        })}
-      </nav>
-      <div className="p-4 border-t border-slate-700">
-        <div className="text-xs text-slate-500 text-center">
-          Compliant with MARPOL 73/78<br />Annex I Requirements<br />
-          <span className="mt-2 text-slate-600">v2.1.3</span>
+            {vessels.length > 1 && (
+              <button onClick={() => setVesselsOpen((o) => !o)} className="rounded-md bg-slate-800 hover:bg-slate-700 px-2 py-1.5 text-xs text-slate-200">
+                <ChevronDown className={cn('w-3.5 h-3.5 transition-transform', vesselsOpen && 'rotate-180')} />
+              </button>
+            )}
+          </div>
+          {vesselsOpen && (
+            <ul className="mt-2 bg-slate-800 rounded-lg p-1 space-y-0.5">
+              {vessels.map((v) => (
+                <li key={v.id}>
+                  <button onClick={() => { dispatch({ type: 'SET_ACTIVE_VESSEL', payload: { uid: v.id } }); setVesselsOpen(false) }}
+                    className={cn('w-full text-left px-2.5 py-1.5 rounded-md text-xs', v.id === state.activeVesselId ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-700')}>
+                    {v.name || '(unnamed)'}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-      </div>
-    </aside>
+
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+          {GROUPS.map((group) => (
+            <div key={group.label}>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 px-2 mb-1">{group.label}</p>
+              {group.items.map((item) => {
+                const Icon = item.icon
+                const active = currentPage === item.id || (currentPage === 'entry-form' && item.id === 'entries')
+                return (
+                  <button key={item.id} onClick={() => onNavigate(item.id)}
+                    className={cn('w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors text-left mb-0.5',
+                      active ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white')}>
+                    <Icon className="w-4 h-4 flex-shrink-0" /> {item.label}
+                  </button>
+                )
+              })}
+            </div>
+          ))}
+        </nav>
+
+        <div className="p-4 border-t border-slate-800">
+          {state.vessels.length > 0 && (
+            <button onClick={onNewEntry} className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-500 px-3 py-2 text-sm font-semibold">
+              <Plus className="w-4 h-4" /> New Record Entry
+            </button>
+          )}
+          <p className="text-[10px] text-slate-600 text-center mt-3">v3.0 · MARPOL 73/78 Annex I<br />Offline-first · Open data</p>
+        </div>
+      </aside>
+      <AddVesselDialog open={addOpen} onOpenChange={setAddOpen} />
+    </>
   )
 }

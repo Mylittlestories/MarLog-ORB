@@ -22,6 +22,35 @@ Release binaries are published on the GitHub Releases page whenever a `v*` tag i
 - Correction workflow preserving original entries for audit traceability.
 - Production desktop and Android build pipelines.
 
+## Power Tool upgrade (v3 roadmap + prototype on `power-tool` branch)
+
+The advancement plan is in [`docs/ADVANCEMENT.md`](docs/ADVANCEMENT.md). A non-breaking
+proof-of-concept is already merged in and verified:
+
+- **Live MARPOL compliance panel** on the entry form — data-driven rule engine
+  (`src/lib/compliance/`) with severity badges and IMO rule references. Flags e.g.
+  sludge-discharge-overboard, >15 ppm, special-area discharges, <12 nm from land,
+  and tank-capacity overruns.
+- **Special-area & distance resolver** — polygon approximations for all Annex I
+  special areas plus a distance-to-land estimate (crude; exact coastline is a later phase).
+- **Unified persistence layer** (`src/lib/storage/`) — typed IndexedDB store with
+  versioned migrations, a localStorage fallback, and versioned backups. A "Backups"
+  panel on the Export page lets you snapshot your data.
+- **Multi-vessel data model + legacy migration** (`src/domain/model.js`) — normalises
+  the current single-vessel shape into a fleet-ready, non-destructive store.
+- **Analytics engine** (`src/lib/analytics/`) — monthly quantities, disposal summary,
+  sludge generation rate and disposal efficiency (pure, testable functions).
+
+Run the suite:
+
+```bash
+npm test
+npm run test:watch
+```
+
+Note: `package.json` was repaired so dependencies resolve (several previously pinned
+versions did not exist, e.g. `clsx@^2.1.3`).
+
 ## Build from source
 
 ### Prerequisites

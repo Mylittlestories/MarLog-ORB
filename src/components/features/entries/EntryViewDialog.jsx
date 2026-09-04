@@ -1,69 +1,53 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog.jsx'
-import { Button } from '@/components/ui/button.jsx'
+// components/features/entries/EntryViewDialog.jsx
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from '@/components/ui/dialog.jsx'
 import { Badge } from '@/components/ui/badge.jsx'
-import { Separator } from '@/components/ui/separator.jsx'
 import { formatDate, formatPosition } from '@/lib/utils.js'
-import { MARPOL_OPERATIONS } from '@/data/marpolOperations.js'
+import { opLabel, OPERATIONS } from '@/data/catalog.js'
 
-export function EntryViewDialog({ entry, onClose, vessel }) {
-  const getOperationName = (code, item) => {
-    if (!code) return '—'
-    const op = MARPOL_OPERATIONS[code]
-    if (!op) return `${code}.${item}`
-    return `${op.name} — Item ${item}`
-  }
+const statusVariant = { active: 'success', corrected: 'warning', void: 'destructive' }
 
-  const infoRows = [
-    { label: 'Entry Number', value: `#${entry.entry_number}` },
-    { label: 'Date (UTC)', value: formatDate(entry.date) },
-    { label: 'Time (UTC)', value: entry.time_utc },
-    { label: 'Operation Code', value: entry.operation_code },
-    { label: 'Item Number', value: entry.item_number },
-    { label: 'Operation', value: getOperationName(entry.operation_code, entry.item_number) },
-    { label: 'Tank ID', value: entry.tank_id || '—' },
-    { label: 'Quantity', value: entry.quantity_m3 ? `${entry.quantity_m3} m³` : '—' },
-    { label: 'Position', value: formatPosition(entry.position_lat, entry.position_lon) },
-    { label: 'Speed', value: entry.ship_speed_knots ? `${entry.ship_speed_knots} kts` : '—' },
-    { label: 'Signed By', value: entry.signed_by || '—' },
-    { label: 'Rank', value: entry.rank || '—' },
+export function EntryViewDialog({ entry, onClose }) {
+  const op = OPERATIONS[entry.operationCode]
+  const rows = [
+    ['Entry no.', `#${entry.entryNumber}`],
+    ['Date (UTC)', `${formatDate(entry.date)} ${entry.timeUtc}`],
+    ['Annex', entry.annex || 'I'],
+    ['Operation', opLabel(entry.operationCode, entry.itemNumber)],
+    ['Tank / space', entry.tankId || (entry.tankIds && entry.tankIds[0]) || '—'],
+    ['Quantity (m³)', entry.quantityM3 ?? '—'],
+    ['OCM reading (ppm)', entry.ppmReading ?? '—'],
+    ['Discharge overboard', entry.dischargeOverboard ? 'Yes' : 'No'],
+    ['Position', entry.position?.lat && entry.position?.lon ? formatPosition(entry.position.lat, entry.position.lon) : '—'],
+    ['Speed (knots)', entry.speedKnots ?? '—'],
+    ['Signed by', `${entry.signedBy || '—'} (${entry.rank || '—'})`],
   ]
-
-  if (entry.status === 'corrected' || entry.status === 'void') {
-    infoRows.push(
-      { label: 'Correction Note', value: entry.correction_note || '—' },
-      { label: 'Corrected By', value: entry.corrected_by || '—' },
-      { label: 'Correction Date', value: formatDate(entry.correction_date) }
-    )
-  }
-
   return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            Entry #{entry.entry_number}
-            <Badge variant={entry.status === 'corrected' ? 'warning' : entry.status === 'void' ? 'destructive' : 'success'}>{entry.status}</Badge>
-          </DialogTitle>
-          <DialogDescription>{vessel?.vessel_name} — {vessel?.imo_number}</DialogDescription>
+          <DialogTitle className="flex items-center gap-2">Entry #{entry.entryNumber} <Badge variant={statusVariant[entry.status] || 'info'}>{entry.status}</Badge></DialogTitle>
+          <DialogDescription>{op?.title}</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
-            {infoRows.map((row, i) => (
-              <div key={i}>
-                <p className="text-xs text-slate-500 uppercase tracking-wide">{row.label}</p>
-                <p className="text-sm font-medium mt-0.5">{row.value}</p>
-              </div>
-            ))}
-          </div>
-          <Separator />
-          <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide mb-2">Record of Operation</p>
-            <div className="bg-slate-50 rounded-lg p-4 text-sm leading-relaxed whitespace-pre-wrap">{entry.record_of_operation}</div>
-          </div>
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
+          {rows.map(([k, v]) => (
+            <div key={k} className="flex justify-between border-b border-slate-100 py-1.5"><dt className="text-slate-500">{k}</dt><dd className="font-medium text-right">{v}</dd></div>
+          ))}
+        </dl>
+        <div className="mt-2">
+          <p className="text-xs text-slate-500 mb-1 font-medium">Record of operation</p>
+          <p className="text-sm bg-slate-50 rounded-lg p-3">{entry.recordOfOperation}</p>
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Close</Button>
-        </DialogFooter>
+        {entry.complianceOverride && (
+          <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-xs text-amber-800">
+            <span className="font-semibold">Compliance override recorded:</span> {entry.complianceOverride.reason} ({formatDate(entry.complianceOverride.at?.slice(0, 10))})
+          </div>
+        )}
+        {(entry.status === 'void') && (
+          <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-800">
+            <span className="font-semibold">Original entry voided.</span> Reason: {entry.voidReason || '—'} by {entry.voidedBy || '—'} on {formatDate(entry.voidedAt?.slice(0, 10))}.
+          </div>
+        )}
+        <DialogClose />
       </DialogContent>
     </Dialog>
   )
