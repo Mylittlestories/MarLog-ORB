@@ -1,10 +1,8 @@
 # MarLog ORB — Advancement Plan (v3.0 "Power Tool")
 
-> Status: **roadmap — prototype delivered**. This document is the decision record and
-> implementation plan. Matching proof-of-concept modules live under `src/domain/`,
-> `src/lib/compliance/`, `src/lib/storage/`, `src/lib/analytics/` and are unit-tested
-> under `tests/` (run with `npm test`). None of the existing single-vessel pages are
-> broken; the POC is additive and non-breaking.
+> Status: **all phases 0–5 implemented in v3.0**. This document is the decision record
+> and plan. The full feature set (fleet, compliance, correction workflow, analytics,
+> audit, robust storage, reworked non-bloating UI) is live on the `v3.0` release.
 
 ---
 
@@ -231,19 +229,27 @@ North West European Waters (North Sea + English Channel), Wider Caribbean.
 
 ---
 
-## 7. Prototype status (what is delivered & verified)
+## 7. Delivery status (v3.0)
 
-✔ **`src/domain/model.js`** — entity IDs, normalisation, legacy single-vessel → fleet migrator.
-✔ **`src/lib/compliance/engine.js`** — rule registry + `validateEntry`; severity model.
-✔ **`src/lib/compliance/regulations.js`** — Annex I rule set (data-driven).
-✔ **`src/lib/compliance/specialAreas.js`** — special-area resolver + distance-to-land stub.
-✔ **`src/lib/storage/indexeddb.js`** — typed IndexedDB store + migrations + backups.
-✔ **`src/lib/storage/adapter.js`** — unified interface w/ localStorage fallback.
-✔ **`src/lib/analytics/engine.js`** — quantity/trend/disposal computations.
-✔ **`tests/`** — compliance, specialAreas, analytics, model, storage (fake-indexeddb).
-✔ **`npm test`** green; **`npm run build`** green.
+All phases are implemented, wired into the UI, and verified:
 
-**Next steps (to build on this branch):** Phase 1–2 wiring into views as listed above.
+✔ Fleet (multi-vessel) — vessel switcher, add/remove vessels, fleet setup.
+✔ Tank registry with capacities + soundings; quantity capacity checks.
+✔ Equipment registry with calibration reminders.
+✔ Crew roster with signature autocomplete & rank routing.
+✔ Compliance engine wired into the entry form (live badges, blocked w/ override + reason).
+✔ Destructive-preserving correction workflow + Master countersignature.
+✔ Analytics UI (monthly volumes, disposal breakdown, efficiency, sludge rate).
+✔ Audit log browser + exportable history.
+✔ Rules reference + special areas reference.
+✔ Export/backup hub (PDF, CSV, JSON, snapshots, import, clear-all).
+✔ IndexedDB persistence with versioned migrations + automatic snapshots + fallback.
+✔ Reworked non-bloating UI: grouped sidebar nav, global vessel switcher, shared UI kit.
+✔ Test suite expanded (35 tests incl. app render + navigation smoke tests).
+✔ `npm test`, `npm run lint`, `npm run build` all green.
+
+**Remaining / future:** exact coastline dataset for precise 12 nm checks, per-flag-state
+rule overrides, remote-sync transport, TypeScript migration, more Annex rule depth.
 
 ---
 

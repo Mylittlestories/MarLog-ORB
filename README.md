@@ -1,95 +1,168 @@
-# MarLog ORB — MARPOL Compliant Oil Record Book
+<div align="center">
 
-A polished offline Oil Record Book for shipboard engineers, focused on MARPOL 73/78 Annex I records, vessel particulars, entry templates, audit-friendly corrections, PDF export, and JSON backup/restore.
+<br/>
 
-## Download
+# 🚢 MarLog ORB
 
-Release binaries are published on the GitHub Releases page whenever a `v*` tag is pushed.
+### MARPOL-compliant Oil Record Book for shipboard engineers
 
-| Platform | Artifact | Notes |
+*Offline-first · Multi-vessel · Compliance-checked · Audit-ready*
+
+<br/>
+
+![banner](branding/banner.png)
+
+<br/>
+
+**An offline-first Oil Record Book built for marine engineers. Record MARPOL Annex I
+operations, get live compliance checks, manage your whole fleet, and export official
+PDFs — all without internet, all on your device.**
+
+<br/>
+
+[![MARPOL](https://img.shields.io/badge/MARPOL-73%2F78%20Annex%20I-0b1f3a)](#)
+[![Platform](https://img.shields.io/badge/Platforms-Web%20·%20Android%20·%20Windows%20·%20Linux-0e4a8f)](#)
+[![Offline-first](https://img.shields.io/badge/Offline--first-Yes-16a34a)](#)
+[![License](https://img.shields.io/badge/License-MIT-f59e0b)](LICENSE)
+
+</div>
+
+---
+
+## ✨ What it does
+
+MarLog ORB is a **MARPOL Annex I Oil Record Book** that runs entirely on your device.
+It replaces the paper register with a fast, searchable, compliance-checked digital
+record that you can print or export at any time — on the bridge, in the engine room,
+or in the office.
+
+## 🎯 Key features
+
+| | Feature | Description |
 |---|---|---|
-| Android | `MarLog_ORB_Android.apk` | Direct APK install for Android devices |
-| Windows | `MarLog ORB_2.1.3_Windows_x64.exe` | Electron NSIS installer |
-| Windows portable | `MarLog_ORB_Windows_Portable.zip` | Unzip and run the executable |
+| 🗂️ | **Multi-vessel fleet** | Manage several ships and switch between them instantly from the sidebar. |
+| 📋 | **All MARPOL codes A–I** | Operation codes and items, plus **Annex II / IV / V** selection for a multi-annex register. |
+| 🛡️ | **Live compliance checks** | Data-driven MARPOL rule engine with severity badges (`info / warning / blocked`). Flags **sludge-overboard**, **>15 ppm**, **special-area discharges**, **<12 nm from land** and **tank-capacity overruns** before you save. |
+| 🧪 | **Tank & equipment registry** | Real tanks with capacities and soundings, plus OWS/OCM/15 ppm alarm/incinerator/ODME equipment with **calibration reminders**. Capacity check against your quantity. |
+| 👷 | **Crew roster** | Signature autocomplete, rank routing, and **Master countersignature** for corrections. |
+| ✍️ | **Audit-true corrections** | Destructive-preserving correction: the original is retained as *void*, a corrected copy is created with a cross-reference and your reason logged. |
+| 📊 | **Analytics** | Monthly oil/sludge/bilge volumes, disposal breakdown (shore / incinerated / to sea), **sludge generation rate**, and disposal efficiency. |
+| 🕵️ | **Audit log** | Every create / edit / correct / delete recorded against time and device — exportable. |
+| 💾 | **Robust storage** | IndexedDB with **versioned migrations** and automatic **snapshots** (before upgrades & destructive actions), plus a portable JSON backup/restore. |
+| 🖨️ | **Export** | Formatted **PDF** Oil Record Book, **CSV** for spreadsheets, and versioned **JSON** backup. |
+| 📱 | **Works anywhere** | Responsive web app; builds for **Android (Capacitor)**, **Windows/Linux (Electron)**. Installable as a PWA. |
 
-## Features
+## 🖼️ Screens
 
-- All MARPOL operation codes A–I with selectable item numbers.
-- Vessel profile: IMO, flag, tonnage, vessel type, OWS/OCM and tank capacities.
-- Entry templates for common engineering operations.
-- Offline-first local persistence.
-- PDF Oil Record Book export and JSON backup/restore.
-- Correction workflow preserving original entries for audit traceability.
-- Production desktop and Android build pipelines.
+| Dashboard | Entry form with compliance panel | Analytics |
+|---|---|---|
+| Quick glance at totals, recent entries and quick actions. | Add an operation, pick tanks and crew, and see live compliance results as you type. | Trends, disposal breakdown and generation rate. |
 
-## Power Tool upgrade (v3 roadmap + prototype on `power-tool` branch)
+> Screenshots are illustrative. Open the app and explore the sidebar — everything is
+> one click away and never bloated.
 
-The advancement plan is in [`docs/ADVANCEMENT.md`](docs/ADVANCEMENT.md). A non-breaking
-proof-of-concept is already merged in and verified:
-
-- **Live MARPOL compliance panel** on the entry form — data-driven rule engine
-  (`src/lib/compliance/`) with severity badges and IMO rule references. Flags e.g.
-  sludge-discharge-overboard, >15 ppm, special-area discharges, <12 nm from land,
-  and tank-capacity overruns.
-- **Special-area & distance resolver** — polygon approximations for all Annex I
-  special areas plus a distance-to-land estimate (crude; exact coastline is a later phase).
-- **Unified persistence layer** (`src/lib/storage/`) — typed IndexedDB store with
-  versioned migrations, a localStorage fallback, and versioned backups. A "Backups"
-  panel on the Export page lets you snapshot your data.
-- **Multi-vessel data model + legacy migration** (`src/domain/model.js`) — normalises
-  the current single-vessel shape into a fleet-ready, non-destructive store.
-- **Analytics engine** (`src/lib/analytics/`) — monthly quantities, disposal summary,
-  sludge generation rate and disposal efficiency (pure, testable functions).
-
-Run the suite:
-
-```bash
-npm test
-npm run test:watch
-```
-
-Note: `package.json` was repaired so dependencies resolve (several previously pinned
-versions did not exist, e.g. `clsx@^2.1.3`).
-
-## Build from source
+## 🚀 Getting started
 
 ### Prerequisites
+- **Node.js 22.12+** and **npm 10+**
+- **Java 21 + Android SDK** to build the Android APK
+- A **Windows runner/host** for the Windows `.exe`
 
-- Node.js 22.12+ and npm 10+
-- Java 21 and Android SDK for APK builds
-- Windows runner/host for Windows `.exe` builds
-
-### Commands
+### Install & run
 
 ```bash
-npm ci
-npm run verify      # lint + production web build
-npm run dev         # local Vite server
-npm run build       # production web build
+npm ci          # or: npm install
+npm run dev     # local dev server (Vite)
+```
 
-# Android APK, requires Java 21 + Android SDK
+### Test, lint, build
+
+```bash
+npm test            # run the test suite (35+ tests)
+npm run test:watch  # interactive
+npm run verify      # lint + build + test
+npm run build       # production web build in dist/
+```
+
+### Build desktop / mobile
+
+```bash
+# Android APK (requires Java 21 + Android SDK)
 npm run build:android
 
-# Windows installer, run on Windows
+# Windows installer (run on Windows)
 npm run build:electron:win
+
+# Linux + Windows electron
+npm run build:electron
 ```
 
-## Release process
+## 🔒 Data & compliance
+
+- **Offline-first.** All data lives on the device (IndexedDB, with a localStorage
+  fallback). No account, no server, no internet needed.
+- **Versioned & safe.** The schema is versioned and migrations snapshot your data first.
+  Export a JSON backup any time for portability.
+- **Advisory by design.** The compliance engine is *guidance*, not a substitute for
+  human judgement, flag-state rules or your company's SMS. Final responsibility for
+  correctness, signatures and official acceptance remains with the vessel/operator.
+- **Open data.** Regulations, operation codes and items are defined as data
+  (`src/data/catalog.js`, `src/lib/compliance/regulations.js`), so they're easy to
+  review, extend and version per flag state.
+
+## 🧱 Architecture
+
+```text
+Views (React)           Dashboard · Entries · Entry form · Fleet · Analytics · Rules · Audit · Data
+        │ typed domain API
+Domain services (pure)  compliance engine · analytics · corrections · backup · fleet model
+        │ storage interface
+Persistence adapters     IndexedDB (primary, migrations, snapshots) ⇄ localStorage fallback ⇄ JSON export
+```
+
+- Pure, testable domain logic (no React/DOM) — runs in Node tests, Electron, Capacitor
+  plugins or a future server.
+- Single unified store (`src/lib/store.js`) with a typed reducer, selectors and audit.
+
+## 📚 Project structure
+
+```
+src/
+  pages/         UI pages (Dashboard, Entries, EntryForm, Fleet, Analytics, Rules, Audit, Data)
+  components/    Reusable UI (misc kit) + feature components (sidebar, compliance panel, dialogs)
+  store/         AppContext provider (boot, load/migrate, persist)
+  lib/           Pure logic: store, compliance, analytics, storage adapters, PDF/CSV export
+  domain/        Entity model + legacy migrator
+  data/          Reference catalog (operations, vessels, ranks, annexes)
+tests/           Vitest suites incl. app render + navigation smoke tests
+docs/            ADVANCEMENT.md roadmap & decisions
+branding/        App icon + README banner
+```
+
+## 📦 Release process
 
 1. Commit the desired changes.
-2. Tag the release, for example `v2.1.3`.
-3. Push the tag.
-4. GitHub Actions builds the web app, APK, Windows installer, portable zip, and publishes the release assets.
+2. Tag a release, e.g. `v3.0.0`.
+3. Push the tag. GitHub Actions builds the web app, Android APK, Windows installer and
+   portable zip, then publishes the release assets.
 
 ```bash
-git tag v2.1.3
-git push origin v2.1.3
+git tag v3.0.0
+git push origin v3.0.0
 ```
 
-## Compliance note
+## 📄 License
 
-MarLog ORB assists with MARPOL Annex I recordkeeping. Final responsibility for correctness, required signatures/countersignatures, flag-state requirements, company SMS procedures, and official acceptance remains with the vessel/operator.
+[MIT](LICENSE)
 
-## License
+---
 
-MIT License.
+<div align="center">
+
+**MarLog ORB** — made for the sea.
+
+<br/>
+
+[Report an issue](https://github.com/Mylittlestories/MarLog-ORB/issues) · [Read the roadmap](docs/ADVANCEMENT.md)
+
+</div>
