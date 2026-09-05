@@ -76,16 +76,23 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
-      - name: Build Electron Windows installer
+      - name: Build Electron Windows installer + portable single-exe
         run: npx electron-builder --win --publish never
       - name: Stage Windows artifacts
         shell: powershell
         run: |
           New-Item -ItemType Directory -Force -Path electron-release | Out-Null
           Copy-Item release\*.exe electron-release\ -ErrorAction Stop
+          # Rename the portable single-file executable to a stable name
+          if (Test-Path release) {
+            Get-ChildItem release\*Portable*.exe -ErrorAction SilentlyContinue | ForEach-Object {
+              Copy-Item $_.FullName electron-release\MarLog_ORB_Windows_x64_Portable.exe
+            }
+          }
           if (Test-Path release\win-unpacked) {
             Compress-Archive -Path release\win-unpacked\* -DestinationPath electron-release\MarLog_ORB_Windows_Portable.zip -Force
           }
+          Get-ChildItem electron-release | Select-Object Name,Length
       - uses: actions/upload-artifact@v4
         with:
           name: windows-build
@@ -138,6 +145,7 @@ jobs:
           files: |
             artifacts/MarLog_ORB_Android.apk
             artifacts/*.exe
+            artifacts/*Portable.exe
             artifacts/MarLog_ORB_Windows_Portable.zip
             MarLog_ORB_Web.zip
             MarLog_ORB_Web_SingleFile.html

@@ -16,7 +16,9 @@ win:
     - target: nsis
       arch:
         - x64
-  artifactName: "${productName}_${version}_Windows_x64.${ext}"
+    - target: portable
+      arch:
+        - x64
 nsis:
   oneClick: false
   perMachine: true
@@ -25,6 +27,8 @@ nsis:
   createDesktopShortcut: always
   createStartMenuShortcut: true
   shortcutName: "MarLog ORB"
+portable:
+  artifactName: "${productName}_${version}_Windows_x64_Portable.exe"
 linux:
   target:
     - target: AppImage

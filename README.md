@@ -52,6 +52,25 @@ or in the office.
 | 🖨️ | **Export** | Formatted **PDF** Oil Record Book, **CSV** for spreadsheets, and versioned **JSON** backup. |
 | 📱 | **Works anywhere** | Responsive web app; builds for **Android (Capacitor)**, **Windows/Linux (Electron)**. Installable as a PWA. |
 
+## ⬇️ Download
+
+Grab the ready-to-run release for your platform from the
+[latest release](https://github.com/Mylittlestories/MarLog-ORB/releases).
+
+| Platform | Artifact | How to use |
+|---|---|---|
+| 🖥️ **Windows** | `MarLog.ORB_x.x.x_Windows_x64.exe` | Installer — double-click to install. |
+| 🪟 **Windows (single .exe)** | `MarLog_ORB_Windows_x64_Portable.exe` | **One double-click, no install.** App + bundled browser in a single file — run from anywhere, no admin needed. |
+| 🪟 **Windows (portable zip)** | `MarLog_ORB_Windows_Portable.zip` | Unzip and run the `.exe` anywhere. |
+| 🤖 **Android** | `MarLog_ORB_Android.apk` | Direct APK install (allow unknown sources). |
+| 🌐 **Single file (any OS)** | `MarLog_ORB_Web_SingleFile.html` | **Double-click and open in a browser.** All-in-one, no server or install. Fully offline. |
+| 🌐 **Web bundle** | `MarLog_ORB_Web.zip` | Static bundle — host it (Pages/Netlify/Nginx) or open via a local server. |
+
+> The **single-file HTML** is a self-contained build with all code embedded — download it
+> and just double-click to use MarLog ORB anywhere, with no install and no internet.
+> (Data is stored per-browser; use **Export & Backup → Download backup** to move your
+> records between devices.)
+
 ## 🖼️ Screens
 
 | Dashboard | Entry form with compliance panel | Analytics |

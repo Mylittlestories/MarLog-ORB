@@ -8,7 +8,7 @@ try {
 } catch (e) { /* not installed, continue normally */ }
 
 const APP_NAME = 'MarLog ORB';
-const APP_VERSION = '2.1.3';
+const APP_VERSION = '3.0.0';
 
 let mainWindow = null;
 
