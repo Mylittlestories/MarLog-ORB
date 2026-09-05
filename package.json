@@ -24,7 +24,8 @@
     "cap:sync": "npm run build && npx cap sync",
     "verify": "npm run lint && npm run build && npm run test",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "build:single": "vite build --config vite.singlefile.config.js"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
@@ -68,6 +69,7 @@
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3",
     "vite": "^6.1.0",
+    "vite-plugin-singlefile": "^2.3.3",
     "vitest": "^2.1.9"
   },
   "main": "electron/main.cjs",

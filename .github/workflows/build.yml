@@ -111,6 +111,13 @@ jobs:
         with:
           name: web-dist
           path: artifacts-web/
+      - name: Build single-file web app
+        shell: bash
+        run: |
+          npm ci
+          npm run build:single
+          cp dist-single/index.html MarLog_ORB_Web_SingleFile.html
+          ls -lh MarLog_ORB_Web_SingleFile.html
       - name: Package ready-to-use web app
         shell: bash
         run: |
@@ -133,3 +140,4 @@ jobs:
             artifacts/*.exe
             artifacts/MarLog_ORB_Windows_Portable.zip
             MarLog_ORB_Web.zip
+            MarLog_ORB_Web_SingleFile.html

@@ -37,3 +37,8 @@ src-tauri/Cargo.lock
 
 # Gradle (generated)
 local.properties
+
+# Single-file build output
+dist-single/
+MarLog_ORB_Web*.html
+MarLog_ORB_Web*.zip
