@@ -107,6 +107,19 @@ jobs:
         with:
           name: windows-build
           path: artifacts/
+      - uses: actions/download-artifact@v4
+        with:
+          name: web-dist
+          path: artifacts-web/
+      - name: Package ready-to-use web app
+        shell: bash
+        run: |
+          # Static web bundle that can be served by any static host (or opened via
+          # a local server) with no build step. Includes the PWA manifest + icons.
+          cd artifacts-web
+          zip -r ../MarLog_ORB_Web.zip .
+          cd ../
+          ls -lh MarLog_ORB_Web.zip
       - name: Publish release
         uses: softprops/action-gh-release@v2
         with:
@@ -119,3 +132,4 @@ jobs:
             artifacts/MarLog_ORB_Android.apk
             artifacts/*.exe
             artifacts/MarLog_ORB_Windows_Portable.zip
+            MarLog_ORB_Web.zip
