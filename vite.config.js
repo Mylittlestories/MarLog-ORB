@@ -4,6 +4,8 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
+  // Allow overriding the base (e.g. /MarLog-ORB/ for GitHub Pages subpath).
+  base: process.env.BASE_PATH || '/',
   server: {
     host: '0.0.0.0',
     allowedHosts: true,
